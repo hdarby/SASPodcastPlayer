@@ -23,6 +23,7 @@ import java.util.List;
 
 public class PodcastFeedLoader {
     public static final String URLString = "http://feeds.feedburner.com/blogspot/AndroidDevelopersBackstage?format=xml";
+    public static final String DOWNLOAD_XML_TASK = "DownloadXmlTask";
 
     Context mContext;
     FeedLoadListener mFeedLoadListener;
@@ -32,47 +33,45 @@ public class PodcastFeedLoader {
         mFeedLoadListener = feedLoadListener;
     }
 
-    public interface FeedLoadListener {
-        void setItemData(List<FeedItem> items);
-    }
-
     public void loadFeedItems() {
         new DownloadXmlTask().execute(URLString);
     }
 
+    public interface FeedLoadListener {
+        void setItemData(List<FeedItem> items);
+    }
 
-    private class DownloadXmlTask extends AsyncTask<String, Void, List<FeedItem>> {
+    private class DownloadXmlTask extends AsyncTask<String, Void, List> {
 
         @Override
-        protected List<FeedItem> doInBackground(String... urls) {
+        protected List doInBackground(String... urls) {
             try {
                 return loadXmlFromNetwork(urls[0]);
             } catch (IOException e) {
-                Log.e("DownloadXmlTask", mContext.getResources().getString(R.string.connection_error));
+                Log.e(DOWNLOAD_XML_TASK, mContext.getResources().getString(R.string.connection_error));
                 return null;
             } catch (XmlPullParserException e) {
-                Log.e("DownloadXmlTask", mContext.getResources().getString(R.string.xml_error));
+                Log.e(DOWNLOAD_XML_TASK, mContext.getResources().getString(R.string.xml_error));
                 return null;
             }
         }
 
         @Override
-        protected void onPostExecute(List<FeedItem> items) {
+        protected void onPostExecute(List items) {
             mFeedLoadListener.setItemData(items);
-            Log.d("DownloadXmlTask", "Number of items downloaded:" + items.size());
+            Log.d(DOWNLOAD_XML_TASK, "Number of items downloaded:" + items.size());
         }
 
-        private List<FeedItem> loadXmlFromNetwork(String urlString) throws XmlPullParserException, IOException {
+        private List loadXmlFromNetwork(String urlString) throws XmlPullParserException, IOException {
             InputStream stream = null;
             // Instantiate the parser
             FeedburnerXmlParser feedburnerXmlParser = new FeedburnerXmlParser();
-            List<FeedItem> items;
+            List items;
 
             try {
                 stream = downloadUrl(urlString);
                 items = feedburnerXmlParser.parse(stream);
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
+                // Makes sure that the InputStream is closed after the app is finished using it.
             } finally {
                 if (stream != null) {
                     stream.close();

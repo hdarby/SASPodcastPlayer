@@ -16,6 +16,12 @@ import java.io.IOException;
 public class FeedItem {
 
     private static final String ns = null;
+    private static final String ITEM = "item";
+    private static final String TITLE = "title";
+    private static final String AUTHOR = "author";
+    private static final String PUBDATE = "pubDate";
+    private static final String LINK = "media:content";
+    private static final String URL_ATTRIBUTE = "url";
 
     private String title;
     private String author;
@@ -29,10 +35,12 @@ public class FeedItem {
         this.link = link;
     }
 
-    // Parses the contents of an item. If it encounters a title or media:content (link) tag, hands them off
-// to their respective "read" methods for processing. Otherwise, skips the tag.
+    // Parses the contents of an item. If it encounters a title, author, pubDate or media:content
+    // (link) tag, hands them off to their respective "read" methods for processing. Otherwise,
+    // skips the tag.
+
     static FeedItem readItem(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "item");
+        parser.require(XmlPullParser.START_TAG, ns, ITEM);
         String title = null;
         String author = null;
         String datePublished = null;
@@ -42,52 +50,57 @@ public class FeedItem {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals("title")) {
-                title = readTitle(parser);
-            } else if (name.equals("author")) {
-                author = readAuthor(parser);
-            } else if (name.equals("pubDate")) {
-                datePublished = readPublishedDate(parser);
-            } else if (name.equals("media:content")) {
-                link = readLink(parser);
-            } else {
-                skip(parser);
+            switch (name) {
+                case TITLE:
+                    title = readTitle(parser);
+                    break;
+                case AUTHOR:
+                    author = readAuthor(parser);
+                    break;
+                case PUBDATE:
+                    datePublished = readPublishedDate(parser);
+                    break;
+                case LINK:
+                    link = readLink(parser);
+                    break;
+                default:
+                    skip(parser);
             }
         }
         return new FeedItem(title, author, datePublished, link);
     }
 
     // Processes title tags in the feed.
-    static String readTitle(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "title");
+    static private String readTitle(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, TITLE);
         String title = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "title");
+        parser.require(XmlPullParser.END_TAG, ns, TITLE);
         return title;
     }
 
-    static String readAuthor(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "author");
+    static private String readAuthor(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, AUTHOR);
         String author = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "author");
+        parser.require(XmlPullParser.END_TAG, ns, AUTHOR);
         return author;
     }
 
-    static String readPublishedDate(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "pubDate");
+    static private String readPublishedDate(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, PUBDATE);
         String publishedDate = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "pubDate");
+        parser.require(XmlPullParser.END_TAG, ns, PUBDATE);
         return publishedDate;
     }
 
     // Processes link tags in the feed.
-    static String readLink(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "media:content");
-        String url = parser.getAttributeValue(null, "url");
+    static private String readLink(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, LINK);
+        String url = parser.getAttributeValue(null, URL_ATTRIBUTE);
         parser.nextTag();
         return url;
     }
 
-    static String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
+    static private String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {
             result = parser.getText();

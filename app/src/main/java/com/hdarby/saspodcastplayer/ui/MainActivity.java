@@ -24,10 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by hdarby on 11/16/2017.
+ * Created by hdarby on 12/8/2017.
  */
 
 public class MainActivity extends AppCompatActivity implements PodcastFeedLoader.FeedLoadListener {
+
+    private static final String IS_PLAYING = "is_playing";
+    private static final String MEDIA_PLAYER_PACKAGE = "com.google.android.music";
 
     private boolean isPlaying;
     private MediaPlayer mediaPlayer;
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
         feedList = new ArrayList<>();
 
         if (savedInstanceState != null) {
-            isPlaying = savedInstanceState.getBoolean("isPlaying", false);
+            isPlaying = savedInstanceState.getBoolean(IS_PLAYING, false);
         }
         setContentView(R.layout.activity_main);
 
@@ -81,9 +84,9 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
             public void onClick(View view, final int position) {
                 FeedItem feedItem = feedList.get(position);
 
-                //Check for Google Play Music exist
-                if (!isPackageInstalled("com.google.android.music", getPackageManager())) {
-                    Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage("com.google.android.music");
+                //Check for Google Play Music
+                if (!isPackageInstalled(MEDIA_PLAYER_PACKAGE, getPackageManager())) {
+                    Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(MEDIA_PLAYER_PACKAGE);
                     startActivity(LaunchIntent);
                 } else {
                     Intent intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("isPlaying", isPlaying);
+        outState.putBoolean(IS_PLAYING, isPlaying);
         super.onSaveInstanceState(outState);
     }
 

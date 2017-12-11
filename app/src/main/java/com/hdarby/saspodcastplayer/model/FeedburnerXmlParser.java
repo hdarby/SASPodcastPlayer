@@ -23,6 +23,8 @@ import static com.hdarby.saspodcastplayer.model.FeedItem.skip;
 public class FeedburnerXmlParser {
 
     private static final String ns = null;
+    private static final String CHANNEL = "channel";
+    private static final String ITEM = "item";
 
     public List parse(InputStream in) throws XmlPullParserException, IOException {
         try {
@@ -42,8 +44,8 @@ public class FeedburnerXmlParser {
                 continue;
             }
             String name = parser.getName();
-            // Starts by looking for the item tag
-            if (name.equals("channel")) {
+            // Starts by looking for the channel tag
+            if (name.equals(CHANNEL)) {
                 // Outer level of the item data, parse inside the channel data
 
                 return readItems(parser);
@@ -64,7 +66,7 @@ public class FeedburnerXmlParser {
 
             String name = parser.getName();
 
-            if (name.equals("item")) {
+            if (name.equals(ITEM)) {
                 items.add(readItem(parser));
             } else {
                 skip(parser);
