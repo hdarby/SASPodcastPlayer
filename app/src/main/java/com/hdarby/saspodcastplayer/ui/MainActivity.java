@@ -65,15 +65,7 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
         stopPlaybackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isPlaying) {
-                    if (mediaPlayer != null) {
-                        mediaPlayer.stop();
-                        mediaPlayer.release();
-                        mediaPlayer = null;
-                    }
-                }
-                isPlaying = !isPlaying;
-                updateStopButton();
+                stopMediaPlayer();
             }
         });
 
@@ -113,8 +105,12 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
         } catch (IOException e) {
             stopMediaPlayer();
 
-            Toast.makeText(this, "Unrecoverable error encountered preparing playback",
+            Toast.makeText(this, "Error encountered preparing playback",
                     Toast.LENGTH_SHORT).show();
+
+            // If it blew up, we're done here
+            stopMediaPlayer();
+            return;
         }
 
         if (mediaPlayer != null) {
