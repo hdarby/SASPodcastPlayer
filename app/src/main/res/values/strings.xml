@@ -3,4 +3,9 @@
     <string name="connection_error">Unable to connect</string>
     <string name="xml_error">XML error</string>
     <string name="stop_playback">Stop Podcast</string>
+    <string name="podcasts">Android Developers Backstage</string>
+    <string name="published_date">Published Date</string>
+    <string name="podcast_title">Title</string>
+    <string name="episode_info">Episode Info</string>
+    <string name="thumbnail">Thumbnail</string>
 </resources>

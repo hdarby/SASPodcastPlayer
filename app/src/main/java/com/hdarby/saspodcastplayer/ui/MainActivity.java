@@ -85,13 +85,13 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
                 FeedItem feedItem = feedList.get(position);
 
                 //Check for Google Play Music
-                if (!isPackageInstalled(MEDIA_PLAYER_PACKAGE, getPackageManager())) {
+                if (isPackageInstalled(MEDIA_PLAYER_PACKAGE, getPackageManager())) {
                     Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(MEDIA_PLAYER_PACKAGE);
                     startActivity(LaunchIntent);
                 } else {
                     Intent intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
-
                     startActivity(intent);
+                }
                     Uri myUri = Uri.parse(feedItem.getLink());
                     try {
                         if (!isPlaying) {
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+
             }
         }));
     }
@@ -146,11 +146,9 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
 
     @Override
     public void setItemData(List<FeedItem> feedItems) {
-        for (FeedItem feedItem : feedItems) {
-            feedList.add(feedItem);
-        }
+        feedList.addAll(feedItems);
 
-        mAdapter = new FeedAdapter(feedList);
+        mAdapter = new FeedAdapter(getApplicationContext(), feedList);
         mRecylerView.setAdapter(mAdapter);
     }
 

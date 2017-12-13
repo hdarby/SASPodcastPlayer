@@ -11,27 +11,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Available Podcasts"
+        android:text="@string/podcasts"
         android:textColor="@color/colorPrimaryDark"
-        android:textSize="20dp"
-        android:textStyle="bold"/>
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
+        android:background="@android:color/darker_gray" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <ImageButton
         android:id="@+id/stop_podcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/stop_playback"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/stop_playback"
         android:src="@drawable/ic_stop_black_48dp"
-        android:layout_gravity="center_horizontal"/>
+        android:text="@string/stop_playback" />
 </LinearLayout>

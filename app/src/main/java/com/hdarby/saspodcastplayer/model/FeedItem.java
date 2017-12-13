@@ -17,18 +17,21 @@ public class FeedItem {
 
     private static final String ns = null;
     private static final String ITEM = "item";
+    private static final String THUMBNAIL = "media:thumbnail";
     private static final String TITLE = "title";
     private static final String AUTHOR = "author";
     private static final String PUBDATE = "pubDate";
-    private static final String LINK = "media:content";
+    private static final String LINK = "enclosure";
     private static final String URL_ATTRIBUTE = "url";
 
+    private String thumbnail;
     private String title;
     private String author;
     private String pubDate;
     private String link;
 
-    public FeedItem(String title, String author, String pubDate, String link) {
+    public FeedItem(String thumbnail, String title, String author, String pubDate, String link) {
+        this.thumbnail = thumbnail;
         this.title = title;
         this.author = author;
         this.pubDate = pubDate;
@@ -41,6 +44,7 @@ public class FeedItem {
 
     static FeedItem readItem(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, ITEM);
+        String thumbnail = null;
         String title = null;
         String author = null;
         String datePublished = null;
@@ -51,6 +55,9 @@ public class FeedItem {
             }
             String name = parser.getName();
             switch (name) {
+                case THUMBNAIL:
+                    thumbnail = readThumbnail(parser);
+                    break;
                 case TITLE:
                     title = readTitle(parser);
                     break;
@@ -67,10 +74,16 @@ public class FeedItem {
                     skip(parser);
             }
         }
-        return new FeedItem(title, author, datePublished, link);
+        return new FeedItem(thumbnail, title, author, datePublished, link);
     }
 
-    // Processes title tags in the feed.
+    static private String readThumbnail(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, THUMBNAIL);
+        String url = parser.getAttributeValue(null, URL_ATTRIBUTE);
+        parser.nextTag();
+        return url;
+    }
+
     static private String readTitle(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, TITLE);
         String title = readText(parser);
@@ -125,6 +138,8 @@ public class FeedItem {
             }
         }
     }
+
+    public String getThumbnail() { return thumbnail; }
 
     public String getTitle() {
         return title;
