@@ -14,6 +14,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.hdarby.saspodcastplayer.R;
 import com.hdarby.saspodcastplayer.data.PodcastFeedLoader;
@@ -92,30 +93,54 @@ public class MainActivity extends AppCompatActivity implements PodcastFeedLoader
                     Intent intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
                     startActivity(intent);
                 }
-                    Uri myUri = Uri.parse(feedItem.getLink());
-                    try {
-                        if (!isPlaying) {
-                            mediaPlayer = new MediaPlayer();
-                            mediaPlayer.setDataSource(MainActivity.this, myUri);
-                            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
-                        } else {
-                            if (mediaPlayer != null) {
-                                mediaPlayer.stop();
-                                mediaPlayer.release();
-                                mediaPlayer = null;
-                            }
-                        }
-                        isPlaying = !isPlaying;
-                        updateStopButton();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
+                Uri myUri = Uri.parse(feedItem.getLink());
+                queuePlaybackFromURI(myUri);
             }
         }));
+    }
+
+    private void queuePlaybackFromURI(final Uri myUri) {
+        try {
+            // Stop any existing media playback
+            stopMediaPlayer();
+
+            // Setup playback and queue it asynchronously
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(MainActivity.this, myUri);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.prepareAsync();
+
+        } catch (IOException e) {
+            stopMediaPlayer();
+
+            Toast.makeText(this, "Unrecoverable error encountered preparing playback",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        if (mediaPlayer != null) {
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mediaPlayer.start();
+                    isPlaying = !isPlaying;
+                    updateStopButton();
+                }
+            });
+        } else {
+            queuePlaybackFromURI(myUri);
+        }
+    }
+
+    private void stopMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        // if the media player is null, just make sure we consider the state as stopped
+        isPlaying = false;
+        updateStopButton();
     }
 
     @Override
